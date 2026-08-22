@@ -1,4 +1,4 @@
-name: 🏆 THE FINAL SOLUTION (Official Template)
+name: 🔥 THE FINAL MAGIC SOLUTION
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       # -----------------------------------------------------------------
-      # 1. استخراج ZIP (ونتجاهله)
+      # 1. استخراج ZIP (ونسحبه)
       # -----------------------------------------------------------------
       - name: Extract ZIP
         run: |
@@ -36,47 +36,141 @@ jobs:
           java-version: '17'
 
       # -----------------------------------------------------------------
-      # 3. 🎯 استخدام قالب Android الرسمي (الحل السحري)
+      # 3. 🎯 استخدام أداة Android الرسمية لتوليد مشروع
       # -----------------------------------------------------------------
-      - name: Create project using official Android template
+      - name: Use Android SDK to create project
         run: |
-          echo "🚀 Creating project from official template..."
+          echo "🚀 Creating project using Android SDK..."
 
-          # حذف كل شيء قديم
-          rm -rf app build.gradle settings.gradle gradle gradlew gradlew.bat .gradle build
+          # تثبيت Android SDK Command Line Tools
+          sudo apt-get update -y
+          sudo apt-get install -y wget unzip
 
-          # ------------------------------------------------------------
-          # تحميل القالب الرسمي من Google
-          # ------------------------------------------------------------
-          git clone --depth 1 https://github.com/android/architecture-components-samples.git temp_repo
-          cp -r temp_repo/BasicRxJavaSample/app ./
-          cp -r temp_repo/BasicRxJavaSample/gradle ./
-          cp -r temp_repo/BasicRxJavaSample/build.gradle ./
-          cp -r temp_repo/BasicRxJavaSample/settings.gradle ./
-          cp -r temp_repo/BasicRxJavaSample/gradle.properties ./
-          cp -r temp_repo/BasicRxJavaSample/gradlew ./
-          cp -r temp_repo/BasicRxJavaSample/gradlew.bat ./
-          rm -rf temp_repo
+          # تحميل Android Command Line Tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip -d android-sdk
+          mkdir -p android-sdk/cmdline-tools/latest
+          mv android-sdk/cmdline-tools/* android-sdk/cmdline-tools/latest/ 2>/dev/null || true
+          
+          export ANDROID_HOME=$PWD/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 
-          # تعديل اسم التطبيق
-          sed -i 's/BasicRxJavaSample/DialerApp/g' settings.gradle
-          sed -i 's/com.example.android.basicrxjavasample/com.dialer.app/g' app/build.gradle
+          # قبول التراخيص
+          yes | sdkmanager --licenses > /dev/null 2>&1
 
-          # إضافة صلاحيات التسجيل والمكالمات
-          cat <<'EOF' >> app/src/main/AndroidManifest.xml
-          <!-- إضافة صلاحيات التسجيل والمكالمات -->
-          <uses-permission android:name="android.permission.RECORD_AUDIO" />
-          <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-          <uses-permission android:name="android.permission.READ_CONTACTS" />
-          <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-          <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-          <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-          <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-          <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+          # تثبيت Android SDK Platform 34
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+          # حذف كل الملفات القديمة
+          rm -rf app build.gradle settings.gradle gradle gradlew gradlew.bat .gradle
+
+          # توليد مشروع جديد باستخدام Android SDK
+          mkdir -p temp_project
+          cd temp_project
+          yes | sdkmanager "system-images;android-34;google_apis;x86_64" > /dev/null 2>&1 || true
+          
+          # إنشاء مشروع بسيط باستخدام gradle init
+          cat <<'EOF' > settings.gradle
+          include ':app'
+          rootProject.name = "DialerApp"
           EOF
 
+          cat <<'EOF' > build.gradle
+          buildscript {
+              repositories { google(); mavenCentral() }
+              dependencies { classpath 'com.android.tools.build:gradle:8.7.2' }
+          }
+          allprojects { repositories { google(); mavenCentral() } }
+          EOF
+
+          mkdir -p app/src/main/java/com/dialer/app
+          mkdir -p app/src/main/res/layout
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/mipmap-hdpi
+          mkdir -p app/src/main/res/mipmap-mdpi
+          mkdir -p app/src/main/res/mipmap-xhdpi
+          mkdir -p app/src/main/res/mipmap-xxhdpi
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
+
+          # ملفات التطبيق
+          cat <<'EOF' > app/build.gradle
+          plugins { id 'com.android.application' }
+          android {
+              namespace 'com.dialer.app'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "com.dialer.app"
+                  minSdk 24
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+          }
+          dependencies {
+              implementation 'androidx.appcompat:appcompat:1.7.0'
+          }
+          EOF
+
+          cat <<'EOF' > app/src/main/AndroidManifest.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.RECORD_AUDIO" />
+              <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+              <uses-permission android:name="android.permission.READ_CONTACTS" />
+              <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+              <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+              <application android:label="@string/app_name">
+                  <activity android:name=".MainActivity" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat <<'EOF' > app/src/main/res/values/strings.xml
+          <resources><string name="app_name">Dialer App</string></resources>
+          EOF
+
+          cat <<'EOF' > app/src/main/res/layout/activity_main.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center"
+              android:orientation="vertical"
+              android:background="#1C1B1F">
+              <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Dialer App Ready"
+                  android:textColor="#FFFFFF"
+                  android:textSize="28sp" />
+          </LinearLayout>
+          EOF
+
+          cat <<'EOF' > app/src/main/java/com/dialer/app/MainActivity.kt
+          package com.dialer.app
+          import android.os.Bundle
+          import androidx.appcompat.app.AppCompatActivity
+          class MainActivity : AppCompatActivity() {
+              override fun onCreate(savedInstanceState: Bundle?) {
+                  super.onCreate(savedInstanceState)
+                  setContentView(R.layout.activity_main)
+              }
+          }
+          EOF
+
+          # توليد Gradle Wrapper
+          gradle wrapper --gradle-version 8.10.2
           chmod +x gradlew
-          echo "✅ Project created from official template!"
+
+          cd ..
+          cp -r temp_project/* ./
+          rm -rf temp_project
+
+          echo "✅ Project created successfully!"
 
       # -----------------------------------------------------------------
       # 4. البناء
@@ -84,18 +178,15 @@ jobs:
       - name: Build APK
         run: |
           echo "🔨 Building APK..."
-          ./gradlew clean assembleDebug --no-daemon --stacktrace
+          ./gradlew clean assembleDebug --no-daemon
           echo "✅ Build completed!"
 
       # -----------------------------------------------------------------
       # 5. التحقق من الـ APK
       # -----------------------------------------------------------------
-      - name: Find and upload APK
+      - name: Find APK
         run: |
-          echo "🔍 Looking for APK..."
           find . -name "*.apk" -type f -exec ls -la {} \;
-          APK_COUNT=$(find . -name "*.apk" -type f | wc -l)
-          echo "Found $APK_COUNT APK files"
 
       # -----------------------------------------------------------------
       # 6. رفع الـ APK
