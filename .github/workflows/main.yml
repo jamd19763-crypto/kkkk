@@ -1,4 +1,4 @@
-name: 🔥 FINAL WORKING APK (Fixed Wrapper)
+name: 🔥 FINAL WORKING APK (No Icons Required)
 
 on:
   push:
@@ -124,12 +124,13 @@ jobs:
           EOF
 
           # ------------------------------------------------------------
-          # 5) Source files
+          # 5) Source files (مع إزالة الأيقونات من Manifest)
           # ------------------------------------------------------------
           mkdir -p app/src/main/java/com/dialer/app
           mkdir -p app/src/main/res/layout
           mkdir -p app/src/main/res/values
 
+          # AndroidManifest.xml (بدون أيقونات - الحل السحري)
           cat <<'EOF' > app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -146,9 +147,7 @@ jobs:
 
               <application
                   android:allowBackup="true"
-                  android:icon="@mipmap/ic_launcher"
                   android:label="@string/app_name"
-                  android:roundIcon="@mipmap/ic_launcher_round"
                   android:supportsRtl="true"
                   android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
                   <activity
@@ -174,12 +173,14 @@ jobs:
           </manifest>
           EOF
 
+          # strings.xml
           cat <<'EOF' > app/src/main/res/values/strings.xml
           <resources>
               <string name="app_name">Dialer App</string>
           </resources>
           EOF
 
+          # activity_main.xml
           cat <<'EOF' > app/src/main/res/layout/activity_main.xml
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -208,6 +209,7 @@ jobs:
           </LinearLayout>
           EOF
 
+          # MainActivity.kt
           cat <<'EOF' > app/src/main/java/com/dialer/app/MainActivity.kt
           package com.dialer.app
 
@@ -222,18 +224,16 @@ jobs:
           }
           EOF
 
-          echo "✅ Project created!"
+          echo "✅ Project created! (No icons needed)"
 
       # -----------------------------------------------------------------
-      # 4. 🔥 توليد Gradle Wrapper بالطريقة الصحيحة
+      # 4. توليد Gradle Wrapper
       # -----------------------------------------------------------------
       - name: Generate Gradle Wrapper
         run: |
-          # استخدام gradle الموجود في النظام لتوليد الـ wrapper
           gradle wrapper --gradle-version 8.10.2
           chmod +x gradlew
-          echo "✅ Gradle wrapper generated successfully!"
-          ls -la gradle/wrapper/
+          echo "✅ Gradle wrapper generated!"
 
       # -----------------------------------------------------------------
       # 5. توليد Keystore
